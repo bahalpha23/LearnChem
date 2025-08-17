@@ -580,14 +580,398 @@ const App = () => {
     </div>
   );
 
+  // Additional Calculator Implementations
+  
+  const MolesCalculator = () => {
+    const [state, setState] = useState({ mass: '', molarMass: '', moles: '' });
+    const [resultField, setResultField] = useState('');
+    const [solution, setSolution] = useState(null);
+    
+    const reset = () => {
+      setState({ mass: '', molarMass: '', moles: '' });
+      setResultField('');
+      setSolution(null);
+    };
+    
+    const handleChange = (field) => (e) => {
+      const newState = { ...state, [field]: e.target.value };
+      setState(newState);
+      const mass = parseFloat(newState.mass);
+      const molarMass = parseFloat(newState.molarMass);
+      const moles = parseFloat(newState.moles);
+      
+      if (field !== 'moles' && !isNaN(mass) && !isNaN(molarMass) && molarMass > 0) {
+        const result = mass / molarMass;
+        setState(s => ({ ...s, moles: result.toPrecision(4) }));
+        setResultField('moles');
+        setSolution(<> <p><strong>Formula:</strong> Moles = Mass / Molar Mass</p> <p><code>Moles = {mass} g / {molarMass} g/mol = {result.toPrecision(4)} mol</code></p> </>);
+      } else if (field !== 'mass' && !isNaN(moles) && !isNaN(molarMass) && molarMass > 0) {
+        const result = moles * molarMass;
+        setState(s => ({ ...s, mass: result.toPrecision(4) }));
+        setResultField('mass');
+        setSolution(<> <p><strong>Formula:</strong> Mass = Moles × Molar Mass</p> <p><code>Mass = {moles} mol × {molarMass} g/mol = {result.toPrecision(4)} g</code></p> </>);
+      } else if (field !== 'molarMass' && !isNaN(moles) && !isNaN(mass) && moles > 0) {
+        const result = mass / moles;
+        setState(s => ({ ...s, molarMass: result.toPrecision(4) }));
+        setResultField('molarMass');
+        setSolution(<> <p><strong>Formula:</strong> Molar Mass = Mass / Moles</p> <p><code>Molar Mass = {mass} g / {moles} mol = {result.toPrecision(4)} g/mol</code></p> </>);
+      } else {
+        setResultField('');
+        setSolution(null);
+      }
+    };
+    
+    return (
+      <CalculatorWrapper onReset={reset}>
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border-2 border-blue-100">
+          <p className="text-sm text-gray-600 leading-relaxed">Enter any two values to calculate the third using the relationship: moles = mass / molar mass.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FlexibleInput label="Mass" value={state.mass} onChange={handleChange('mass')} unit="g" placeholder="e.g., 58.44" isResult={resultField === 'mass'} />
+          <FlexibleInput label="Molar Mass" value={state.molarMass} onChange={handleChange('molarMass')} unit="g/mol" placeholder="e.g., 58.44" isResult={resultField === 'molarMass'} />
+          <div className="md:col-span-2">
+            <FlexibleInput label="Moles" value={state.moles} onChange={handleChange('moles')} unit="mol" placeholder="e.g., 1.0" isResult={resultField === 'moles'} />
+          </div>
+        </div>
+        <SolutionDisplay solution={solution} />
+      </CalculatorWrapper>
+    );
+  };
+
+  const MolalityCalculator = () => {
+    const [state, setState] = useState({ moles: '', mass: '', molality: '' });
+    const [resultField, setResultField] = useState('');
+    const [solution, setSolution] = useState(null);
+    
+    const reset = () => {
+      setState({ moles: '', mass: '', molality: '' });
+      setResultField('');
+      setSolution(null);
+    };
+    
+    const handleChange = (field) => (e) => {
+      const newState = { ...state, [field]: e.target.value };
+      setState(newState);
+      const moles = parseFloat(newState.moles);
+      const mass = parseFloat(newState.mass);
+      const molality = parseFloat(newState.molality);
+      
+      if (field !== 'molality' && !isNaN(moles) && !isNaN(mass) && mass > 0) {
+        const result = moles / mass;
+        setState(s => ({ ...s, molality: result.toPrecision(4) }));
+        setResultField('molality');
+        setSolution(<> <p><strong>Formula:</strong> Molality = Moles of Solute / Mass of Solvent (kg)</p> <p><code>Molality = {moles} mol / {mass} kg = {result.toPrecision(4)} m</code></p> </>);
+      } else if (field !== 'moles' && !isNaN(molality) && !isNaN(mass) && mass > 0) {
+        const result = molality * mass;
+        setState(s => ({ ...s, moles: result.toPrecision(4) }));
+        setResultField('moles');
+        setSolution(<> <p><strong>Formula:</strong> Moles = Molality × Mass of Solvent (kg)</p> <p><code>Moles = {molality} m × {mass} kg = {result.toPrecision(4)} mol</code></p> </>);
+      } else if (field !== 'mass' && !isNaN(molality) && !isNaN(moles) && molality > 0) {
+        const result = moles / molality;
+        setState(s => ({ ...s, mass: result.toPrecision(4) }));
+        setResultField('mass');
+        setSolution(<> <p><strong>Formula:</strong> Mass of Solvent (kg) = Moles / Molality</p> <p><code>Mass = {moles} mol / {molality} m = {result.toPrecision(4)} kg</code></p> </>);
+      } else {
+        setResultField('');
+        setSolution(null);
+      }
+    };
+    
+    return (
+      <CalculatorWrapper onReset={reset}>
+        <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border-2 border-purple-100">
+          <p className="text-sm text-gray-600 leading-relaxed">Enter any two values to calculate the third. Molality = moles of solute / kg of solvent.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FlexibleInput label="Moles of Solute" value={state.moles} onChange={handleChange('moles')} unit="mol" placeholder="e.g., 0.5" isResult={resultField === 'moles'} />
+          <FlexibleInput label="Mass of Solvent" value={state.mass} onChange={handleChange('mass')} unit="kg" placeholder="e.g., 0.5" isResult={resultField === 'mass'} />
+          <div className="md:col-span-2">
+            <FlexibleInput label="Molality" value={state.molality} onChange={handleChange('molality')} unit="m (mol/kg)" placeholder="e.g., 1.0" isResult={resultField === 'molality'} />
+          </div>
+        </div>
+        <SolutionDisplay solution={solution} />
+      </CalculatorWrapper>
+    );
+  };
+
+  const DilutionCalculator = () => {
+    const [state, setState] = useState({ m1: '', v1: '', m2: '', v2: '' });
+    const [resultField, setResultField] = useState('');
+    const [solution, setSolution] = useState(null);
+    
+    const reset = () => {
+      setState({ m1: '', v1: '', m2: '', v2: '' });
+      setResultField('');
+      setSolution(null);
+    };
+    
+    const handleChange = (field) => (e) => {
+      const newState = { ...state, [field]: e.target.value };
+      setState(newState);
+      const m1 = parseFloat(newState.m1), v1 = parseFloat(newState.v1), m2 = parseFloat(newState.m2), v2 = parseFloat(newState.v2);
+      
+      if (field !== 'v2' && !isNaN(m1) && !isNaN(v1) && !isNaN(m2) && m2 > 0) {
+        const result = (m1 * v1) / m2;
+        setState(s => ({ ...s, v2: result.toPrecision(4) }));
+        setResultField('v2');
+        setSolution(<> <p><strong>Formula:</strong> V₂ = (M₁V₁) / M₂</p> <p><code>V₂ = ({m1} M × {v1} L) / {m2} M = {result.toPrecision(4)} L</code></p> </>);
+      } else if (field !== 'm2' && !isNaN(m1) && !isNaN(v1) && !isNaN(v2) && v2 > 0) {
+        const result = (m1 * v1) / v2;
+        setState(s => ({ ...s, m2: result.toPrecision(4) }));
+        setResultField('m2');
+        setSolution(<> <p><strong>Formula:</strong> M₂ = (M₁V₁) / V₂</p> <p><code>M₂ = ({m1} M × {v1} L) / {v2} L = {result.toPrecision(4)} M</code></p> </>);
+      } else if (field !== 'v1' && !isNaN(m1) && !isNaN(m2) && !isNaN(v2) && m1 > 0) {
+        const result = (m2 * v2) / m1;
+        setState(s => ({ ...s, v1: result.toPrecision(4) }));
+        setResultField('v1');
+        setSolution(<> <p><strong>Formula:</strong> V₁ = (M₂V₂) / M₁</p> <p><code>V₁ = ({m2} M × {v2} L) / {m1} M = {result.toPrecision(4)} L</code></p> </>);
+      } else if (field !== 'm1' && !isNaN(v1) && !isNaN(m2) && !isNaN(v2) && v1 > 0) {
+        const result = (m2 * v2) / v1;
+        setState(s => ({ ...s, m1: result.toPrecision(4) }));
+        setResultField('m1');
+        setSolution(<> <p><strong>Formula:</strong> M₁ = (M₂V₂) / V₁</p> <p><code>M₁ = ({m2} M × {v2} L) / {v1} L = {result.toPrecision(4)} M</code></p> </>);
+      } else {
+        setResultField('');
+        setSolution(null);
+      }
+    };
+    
+    return (
+      <CalculatorWrapper onReset={reset}>
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border-2 border-green-100">
+          <p className="text-sm text-gray-600 leading-relaxed">Enter any three values to calculate the fourth (M₁V₁ = M₂V₂).</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+          <div className="p-4 border border-blue-200 rounded-xl">
+            <h3 className="font-semibold text-blue-700 mb-3">Initial Solution (Stock)</h3>
+            <div className="space-y-4">
+              <FlexibleInput label="Initial Molarity (M₁)" value={state.m1} onChange={handleChange('m1')} unit="M" placeholder="e.g., 12.0" isResult={resultField === 'm1'} />
+              <FlexibleInput label="Initial Volume (V₁)" value={state.v1} onChange={handleChange('v1')} unit="L" placeholder="e.g., 0.1" isResult={resultField === 'v1'} />
+            </div>
+          </div>
+          <div className="p-4 border border-green-200 rounded-xl">
+            <h3 className="font-semibold text-green-700 mb-3">Final Solution (Diluted)</h3>
+            <div className="space-y-4">
+              <FlexibleInput label="Final Molarity (M₂)" value={state.m2} onChange={handleChange('m2')} unit="M" placeholder="e.g., 1.0" isResult={resultField === 'm2'} />
+              <FlexibleInput label="Final Volume (V₂)" value={state.v2} onChange={handleChange('v2')} unit="L" placeholder="e.g., 1.2" isResult={resultField === 'v2'} />
+            </div>
+          </div>
+        </div>
+        <SolutionDisplay solution={solution} />
+      </CalculatorWrapper>
+    );
+  };
+
+  const UnitConverter = () => {
+    const [values, setValues] = useState({ input: '', from: 'C', to: 'K', result: '' });
+    const [type, setType] = useState('temperature');
+
+    const conversions = {
+      temperature: {
+        C: { K: (v) => v + 273.15, F: (v) => (v * 9 / 5) + 32 },
+        K: { C: (v) => v - 273.15, F: (v) => ((v - 273.15) * 9 / 5) + 32 },
+        F: { C: (v) => (v - 32) * 5 / 9, K: (v) => ((v - 32) * 5 / 9) + 273.15 },
+      },
+      pressure: {
+        atm: { Pa: (v) => v * 101325, torr: (v) => v * 760, psi: (v) => v * 14.696 },
+        Pa: { atm: (v) => v / 101325, torr: (v) => v * 0.00750062, psi: (v) => v * 0.000145038 },
+        torr: { atm: (v) => v / 760, Pa: (v) => v * 133.322, psi: (v) => v * 0.0193368 },
+        psi: { atm: (v) => v / 14.696, Pa: (v) => v * 6894.76, torr: (v) => v * 51.7149 },
+      },
+      volume: {
+        L: { mL: (v) => v * 1000, m3: (v) => v / 1000, gal: (v) => v * 0.264172 },
+        mL: { L: (v) => v / 1000, m3: (v) => v / 1e6, gal: (v) => v * 0.000264172 },
+        m3: { L: (v) => v * 1000, mL: (v) => v * 1e6, gal: (v) => v * 264.172 },
+        gal: { L: (v) => v * 3.78541, mL: (v) => v * 3785.41, m3: (v) => v * 0.00378541 },
+      }
+    };
+
+    const calculate = () => {
+      const { input, from, to } = values;
+      if (input && from && to && from !== to) {
+        const result = conversions[type][from][to](parseFloat(input));
+        setValues(prev => ({ ...prev, result: result.toFixed(4) }));
+      }
+    };
+
+    const handleTypeChange = (newType) => {
+      setType(newType);
+      const units = Object.keys(conversions[newType]);
+      setValues({ input: '', from: units[0], to: units[1], result: '' });
+    };
+
+    const currentUnits = Object.keys(conversions[type]);
+
+    return (
+      <div className="space-y-8">
+        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-xl border-2 border-indigo-100">
+          <p className="text-sm text-gray-600 leading-relaxed">Convert between different units commonly used in chemistry.</p>
+        </div>
+        
+        <div className="flex justify-center gap-2">
+          {Object.keys(conversions).map(t => (
+            <button key={t} onClick={() => handleTypeChange(t)} className={`py-2 px-4 rounded-lg text-sm font-medium transition-all ${type === t ? 'bg-indigo-600 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+              {t.charAt(0).toUpperCase() + t.slice(1)}
+            </button>
+          ))}
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+          <FlexibleInput label="Value" value={values.input} onChange={(e) => setValues(prev => ({ ...prev, input: e.target.value }))} placeholder="Enter value" />
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">From</label>
+            <select value={values.from} onChange={(e) => setValues(prev => ({ ...prev, from: e.target.value }))} className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300">
+              {currentUnits.map(u => <option key={u} value={u}>{u}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">To</label>
+            <select value={values.to} onChange={(e) => setValues(prev => ({ ...prev, to: e.target.value }))} className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300">
+              {currentUnits.map(u => <option key={u} value={u}>{u}</option>)}
+            </select>
+          </div>
+        </div>
+        
+        <FlexibleInput label="Result" value={values.result} isResult={!!values.result} disabled placeholder="Conversion result" />
+        
+        <div className="flex gap-3">
+          <button onClick={calculate} className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg hover:bg-indigo-700 transition-all font-medium flex items-center justify-center gap-2 shadow-md">
+            <Recycle className="w-4 h-4" />
+            Convert
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const MassPercentCalculator = () => {
+    const [state, setState] = useState({ solute: '', solvent: '', percent: '' });
+    const [resultField, setResultField] = useState('');
+    const [solution, setSolution] = useState(null);
+    
+    const reset = () => {
+      setState({ solute: '', solvent: '', percent: '' });
+      setResultField('');
+      setSolution(null);
+    };
+    
+    const handleChange = (field) => (e) => {
+      const newState = { ...state, [field]: e.target.value };
+      setState(newState);
+      const solute = parseFloat(newState.solute);
+      const solvent = parseFloat(newState.solvent);
+      const percent = parseFloat(newState.percent);
+      
+      if (field !== 'percent' && !isNaN(solute) && !isNaN(solvent) && (solute + solvent > 0)) {
+        const result = (solute / (solute + solvent)) * 100;
+        setState(s => ({ ...s, percent: result.toPrecision(4) }));
+        setResultField('percent');
+        setSolution(<> <p><strong>Formula:</strong> Mass % = (Mass of Solute / (Mass of Solute + Mass of Solvent)) × 100</p> <p><code>Mass % = ({solute} g / ({solute} g + {solvent} g)) × 100 = {result.toPrecision(4)}%</code></p> </>);
+      } else if (field !== 'solute' && !isNaN(percent) && !isNaN(solvent) && percent > 0 && percent < 100) {
+        const result = (solvent * percent) / (100 - percent);
+        setState(s => ({ ...s, solute: result.toPrecision(4) }));
+        setResultField('solute');
+        setSolution(<> <p><strong>Formula:</strong> Mass Solute = (Mass Solvent × Mass %) / (100 - Mass %)</p> <p><code>Mass Solute = ({solvent} g × {percent}%) / (100 - {percent}%) = {result.toPrecision(4)} g</code></p> </>);
+      } else if (field !== 'solvent' && !isNaN(percent) && !isNaN(solute) && percent > 0 && percent < 100) {
+        const result = (solute * (100 - percent)) / percent;
+        setState(s => ({ ...s, solvent: result.toPrecision(4) }));
+        setResultField('solvent');
+        setSolution(<> <p><strong>Formula:</strong> Mass Solvent = (Mass Solute × (100 - Mass %)) / Mass %</p> <p><code>Mass Solvent = ({solute} g × (100 - {percent}%)) / {percent}% = {result.toPrecision(4)} g</code></p> </>);
+      } else {
+        setResultField('');
+        setSolution(null);
+      }
+    };
+    
+    return (
+      <CalculatorWrapper onReset={reset}>
+        <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl border-2 border-yellow-100">
+          <p className="text-sm text-gray-600 leading-relaxed">Enter any two values to calculate the third. Mass percent represents the concentration of a solution.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FlexibleInput label="Mass of Solute" value={state.solute} onChange={handleChange('solute')} unit="g" placeholder="e.g., 10" isResult={resultField === 'solute'} />
+          <FlexibleInput label="Mass of Solvent" value={state.solvent} onChange={handleChange('solvent')} unit="g" placeholder="e.g., 90" isResult={resultField === 'solvent'} />
+          <div className="md:col-span-2">
+            <FlexibleInput label="Mass Percent" value={state.percent} onChange={handleChange('percent')} unit="%" placeholder="e.g., 10" isResult={resultField === 'percent'} />
+          </div>
+        </div>
+        <SolutionDisplay solution={solution} />
+      </CalculatorWrapper>
+    );
+  };
+
+  const BoylesLawCalculator = () => {
+    const [state, setState] = useState({ p1: '', v1: '', p2: '', v2: '' });
+    const [resultField, setResultField] = useState('');
+    const [solution, setSolution] = useState(null);
+    
+    const reset = () => {
+      setState({ p1: '', v1: '', p2: '', v2: '' });
+      setResultField('');
+      setSolution(null);
+    };
+    
+    const handleChange = (field) => (e) => {
+      const newState = { ...state, [field]: e.target.value };
+      setState(newState);
+      const p1 = parseFloat(newState.p1), v1 = parseFloat(newState.v1), p2 = parseFloat(newState.p2), v2 = parseFloat(newState.v2);
+      
+      if (field !== 'v2' && !isNaN(p1) && !isNaN(v1) && !isNaN(p2) && p2 > 0) {
+        const result = (p1 * v1) / p2;
+        setState(s => ({ ...s, v2: result.toPrecision(4) }));
+        setResultField('v2');
+        setSolution(<> <p><strong>Formula:</strong> V₂ = (P₁V₁) / P₂</p> <p><code>V₂ = ({p1} atm × {v1} L) / {p2} atm = {result.toPrecision(4)} L</code></p> </>);
+      } else if (field !== 'p2' && !isNaN(p1) && !isNaN(v1) && !isNaN(v2) && v2 > 0) {
+        const result = (p1 * v1) / v2;
+        setState(s => ({ ...s, p2: result.toPrecision(4) }));
+        setResultField('p2');
+        setSolution(<> <p><strong>Formula:</strong> P₂ = (P₁V₁) / V₂</p> <p><code>P₂ = ({p1} atm × {v1} L) / {v2} L = {result.toPrecision(4)} atm</code></p> </>);
+      } else if (field !== 'v1' && !isNaN(p1) && !isNaN(p2) && !isNaN(v2) && p1 > 0) {
+        const result = (p2 * v2) / p1;
+        setState(s => ({ ...s, v1: result.toPrecision(4) }));
+        setResultField('v1');
+        setSolution(<> <p><strong>Formula:</strong> V₁ = (P₂V₂) / P₁</p> <p><code>V₁ = ({p2} atm × {v2} L) / {p1} atm = {result.toPrecision(4)} L</code></p> </>);
+      } else if (field !== 'p1' && !isNaN(v1) && !isNaN(p2) && !isNaN(v2) && v1 > 0) {
+        const result = (p2 * v2) / v1;
+        setState(s => ({ ...s, p1: result.toPrecision(4) }));
+        setResultField('p1');
+        setSolution(<> <p><strong>Formula:</strong> P₁ = (P₂V₂) / V₁</p> <p><code>P₁ = ({p2} atm × {v2} L) / {v1} L = {result.toPrecision(4)} atm</code></p> </>);
+      } else {
+        setResultField('');
+        setSolution(null);
+      }
+    };
+    
+    return (
+      <CalculatorWrapper onReset={reset}>
+        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-xl border-2 border-emerald-100">
+          <p className="text-sm text-gray-600 leading-relaxed">Calculates pressure or volume using Boyle's Law (P₁V₁ = P₂V₂). Enter three values.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FlexibleInput label="Initial Pressure (P₁)" value={state.p1} onChange={handleChange('p1')} unit="atm" placeholder="1" isResult={resultField === 'p1'} />
+          <FlexibleInput label="Initial Volume (V₁)" value={state.v1} onChange={handleChange('v1')} unit="L" placeholder="2" isResult={resultField === 'v1'} />
+          <FlexibleInput label="Final Pressure (P₂)" value={state.p2} onChange={handleChange('p2')} unit="atm" placeholder="2" isResult={resultField === 'p2'} />
+          <FlexibleInput label="Final Volume (V₂)" value={state.v2} onChange={handleChange('v2')} unit="L" placeholder="1" isResult={resultField === 'v2'} />
+        </div>
+        <SolutionDisplay solution={solution} />
+      </CalculatorWrapper>
+    );
+  };
+
   // Function to render the correct calculator based on state
   const renderCalculator = () => {
     switch (activeCalculator) {
       case 'molarMass': return <MolarMassCalculator />;
+      case 'moles': return <MolesCalculator />;
       case 'molarity': return <MolarityCalculator />;
+      case 'molality': return <MolalityCalculator />;
+      case 'massConcentration': return <MassPercentCalculator />;
+      case 'dilution': return <DilutionCalculator />;
       case 'idealgas': return <IdealGasCalculator />;
+      case 'boyle': return <BoylesLawCalculator />;
       case 'ph': return <PHCalculator />;
       case 'periodicTable': return <PeriodicTable />;
+      case 'converter': return <UnitConverter />;
       default: return <PlaceholderCalculator name={calculatorCategories[activeCategory]?.calculators[activeCalculator]?.name || 'Calculator'} />;
     }
   };
@@ -598,7 +982,7 @@ const App = () => {
 
   // Sidebar Component
   const Sidebar = ({ onSelectCalculator, onToggle }) => (
-    <aside className={`fixed top-0 left-0 h-full z-30 bg-white/95 backdrop-blur-lg border-r border-gray-200/80 transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} w-80 flex-shrink-0 flex flex-col shadow-xl md:shadow-none`}>
+    <aside className={`fixed top-0 left-0 h-screen z-30 bg-white/95 backdrop-blur-lg border-r border-gray-200/80 transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} w-80 flex-shrink-0 flex flex-col shadow-xl md:shadow-none`}>
       <div className="p-6 flex items-center justify-between gap-3 border-b border-gray-200/80 flex-shrink-0 bg-white/80 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -613,39 +997,41 @@ const App = () => {
           <X className="w-6 h-6" />
         </button>
       </div>
-      <nav className="flex-1 min-h-0 p-4 space-y-6 overflow-y-auto">
-        {Object.entries(calculatorCategories).map(([key, category]) => {
-          const CategoryIcon = category.icon;
-          return (
-            <div key={key} className="space-y-3">
-              <h2 className={`text-xs font-bold uppercase tracking-wider flex items-center gap-2.5 px-3 py-2 ${category.color} ${category.lightBg} rounded-lg border ${category.borderColor}`}>
-                <CategoryIcon className="w-4 h-4" />
-                {category.name}
-              </h2>
-              <ul className="space-y-1">
-                {Object.entries(category.calculators).map(([calcKey, calc]) => {
-                  const CalcIcon = calc.icon;
-                  const isActive = activeCalculator === calcKey;
-                  return (
-                    <li key={calcKey}>
-                      <button
-                        onClick={() => onSelectCalculator(key, calcKey)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-sm font-medium transition-all duration-300 ${isActive
-                          ? `${category.bgColor} text-white shadow-lg transform scale-105`
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-md'
-                          }`}
-                      >
-                        <CalcIcon className="w-5 h-5 flex-shrink-0" />
-                        <span>{calc.name}</span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          );
-        })}
-      </nav>
+      <div className="flex-1 overflow-hidden">
+        <nav className="h-full p-4 space-y-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+          {Object.entries(calculatorCategories).map(([key, category]) => {
+            const CategoryIcon = category.icon;
+            return (
+              <div key={key} className="space-y-2">
+                <h2 className={`text-xs font-bold uppercase tracking-wider flex items-center gap-2.5 px-3 py-2 ${category.color} ${category.lightBg} rounded-lg border ${category.borderColor}`}>
+                  <CategoryIcon className="w-4 h-4" />
+                  {category.name}
+                </h2>
+                <ul className="space-y-1">
+                  {Object.entries(category.calculators).map(([calcKey, calc]) => {
+                    const CalcIcon = calc.icon;
+                    const isActive = activeCalculator === calcKey;
+                    return (
+                      <li key={calcKey}>
+                        <button
+                          onClick={() => onSelectCalculator(key, calcKey)}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm font-medium transition-all duration-300 ${isActive
+                            ? `${category.bgColor} text-white shadow-lg`
+                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-md'
+                            }`}
+                        >
+                          <CalcIcon className="w-4 h-4 flex-shrink-0" />
+                          <span className="truncate">{calc.name}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            );
+          })}
+        </nav>
+      </div>
     </aside>
   );
 
@@ -664,39 +1050,41 @@ const App = () => {
       />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-screen">
-        <div className="flex-1 p-4 md:p-10 overflow-y-auto">
-          {/* Mobile Header */}
-          <header className="flex items-center gap-4 mb-8 md:hidden">
-            <button 
-              onClick={() => setSidebarOpen(true)} 
-              className="p-3 text-gray-600 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-          </header>
-          
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white/80 backdrop-blur-lg p-8 sm:p-10 rounded-3xl shadow-2xl border border-gray-200/50">
-              <div className="flex items-center gap-6 mb-8">
-                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${currentCategory.bgColor} shadow-xl`}>
-                  <CurrentIcon className="w-8 h-8 text-white" />
+      <main className="flex-1 flex flex-col h-screen max-h-screen">
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 md:p-10">
+            {/* Mobile Header */}
+            <header className="flex items-center gap-4 mb-8 md:hidden">
+              <button 
+                onClick={() => setSidebarOpen(true)} 
+                className="p-3 text-gray-600 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+            </header>
+            
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-white/80 backdrop-blur-lg p-8 sm:p-10 rounded-3xl shadow-2xl border border-gray-200/50">
+                <div className="flex items-center gap-6 mb-8">
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${currentCategory.bgColor} shadow-xl`}>
+                    <CurrentIcon className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-1">
+                      {currentCalculator?.name || 'Calculator'}
+                    </h2>
+                    <p className={`font-semibold text-base sm:text-lg ${currentCategory.color}`}>{currentCategory.name}</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-1">
-                    {currentCalculator?.name || 'Calculator'}
-                  </h2>
-                  <p className={`font-semibold text-base sm:text-lg ${currentCategory.color}`}>{currentCategory.name}</p>
-                </div>
+                {renderCalculator()}
               </div>
-              {renderCalculator()}
-            </div>
 
-            <footer className="text-center mt-10 text-sm text-gray-400">
-              <p className="flex items-center justify-center gap-2">
-                Made with <Beaker className="w-4 h-4 text-blue-500" /> ChemCalculator &copy; 2025
-              </p>
-            </footer>
+              <footer className="text-center mt-10 text-sm text-gray-400">
+                <p className="flex items-center justify-center gap-2">
+                  Made with <Beaker className="w-4 h-4 text-blue-500" /> ChemCalculator &copy; 2025
+                </p>
+              </footer>
+            </div>
           </div>
         </div>
       </main>
@@ -722,18 +1110,25 @@ const App = () => {
             margin: 0.5em 0;
         }
         /* Custom scrollbar for webkit browsers */
-        aside nav::-webkit-scrollbar {
+        .scrollbar-thin::-webkit-scrollbar {
           width: 6px;
         }
-        aside nav::-webkit-scrollbar-track {
+        .scrollbar-thin::-webkit-scrollbar-track {
           background: rgba(241, 245, 249, 0.5);
+          border-radius: 3px;
         }
-        aside nav::-webkit-scrollbar-thumb {
+        .scrollbar-thin::-webkit-scrollbar-thumb {
           background: rgba(203, 213, 225, 0.8);
           border-radius: 3px;
         }
-        aside nav::-webkit-scrollbar-thumb:hover {
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
           background: rgba(148, 163, 184, 0.9);
+        }
+        
+        /* Firefox scrollbar */
+        .scrollbar-thin {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(203, 213, 225, 0.8) rgba(241, 245, 249, 0.5);
         }
         
         /* Glassmorphism effect */
